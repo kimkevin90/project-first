@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "user",
-    "password": "Dlawltjq!2",
-    "database": "library",
-    "host": "management-tutorial.cxxqtzp2zobh.ap-northeast-2.rds.amazonaws.com",
+    "username": "",
+    "password": "",
+    "database": "",
+    "host": "",
     "dialect": "mysql"
   },
   "test": {
