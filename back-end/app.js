@@ -29,7 +29,7 @@ app.use(express.json());
 // 주소 형식으로 데이터를 보내는 방식이다. extended: false이면 노드의 querystring 모듈을 사용하여 쿼리스트링을 해석한다.
 app.use(express.urlencoded({ extended: false }));
 
-app.use("/", indexRouter);
+app.use("/user", indexRouter);
 
 app.use((err, req, res, next) => {
   res.locals.message = err.message;

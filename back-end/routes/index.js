@@ -13,27 +13,21 @@ const auth = require("../middleware/auth");
 router.post("/register", async (req, res, next) => {
   try {
     let { email, password, passwordCheck, displayName } = req.body;
-
+    console.log(req.body);
     // validate
 
     if (!email || !password || !passwordCheck)
-      return res.status(400).json({ msg: "Not all fields have been entered." });
+      return res.status(400).json({ msg: "모든 필드 입력해주세요" });
     if (password.length < 5)
-      return res
-        .status(400)
-        .json({ msg: "The password needs to be at least 5 characters long." });
+      return res.status(400).json({ msg: "패스워드 최소 5자리이상" });
     if (password !== passwordCheck)
-      return res
-        .status(400)
-        .json({ msg: "Enter the same password twice for verification." });
+      return res.status(400).json({ msg: "패스워드를 다시 확인해주세요" });
 
     const existingUser = await Login.findOne({
       where: { email: email },
     });
     if (existingUser)
-      return res
-        .status(400)
-        .json({ msg: "An account with this email already exists." });
+      return res.status(400).json({ msg: "이미 등록한 계정입니다." });
     if (!displayName) displayName = email;
 
     const salt = await bcrypt.genSalt();
@@ -56,16 +50,13 @@ router.post("/login", async (req, res) => {
 
     // validate
     if (!email || !password)
-      return res.status(400).json({ msg: "Not all fields have been entered." });
+      return res.status(400).json({ msg: "모든필드를 입력해주세요" });
 
     const user = await Login.findOne({ where: { email: email } });
-    if (!user)
-      return res
-        .status(400)
-        .json({ msg: "No account with this email has been registered." });
+    if (!user) return res.status(400).json({ msg: "없는 계정인데요?" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ msg: "Invalid credentials." });
+    if (!isMatch) return res.status(400).json({ msg: "비번틀린듯" });
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
     console.log(process.env.JWT_SECRET);
@@ -74,7 +65,6 @@ router.post("/login", async (req, res) => {
       user: {
         id: user.id,
         displayName: user.displayName,
-        email: user.email,
       },
     });
   } catch (err) {
@@ -108,60 +98,12 @@ router.post("/tokenIsValid", async (req, res) => {
   }
 });
 
-// router.get("/getAll", async (req, res, next) => {
-//   try {
-//     const user = await User.findAll();
-//     res.status(201).json(user);
-//   } catch (err) {
-//     console.error(err);
-//     next(err);
-//   }
-// });
+router.get("/", auth, async (req, res) => {
+  const user = await Login.findOne({ where: { id: req.user } });
+  res.json({
+    displayName: user.displayName,
+    id: user.id,
+  });
+});
 
-// router.patch("/update", async (req, res, next) => {
-//   try {
-//     const results = await User.update(
-//       {
-//         name: req.body.name,
-//         contents: req.body.contents,
-//         writer: req.body.writer,
-//         date: req.body.date,
-//       },
-//       { where: { id: req.body.id } }
-//     );
-//     res.json({ success: results });
-//   } catch (err) {
-//     console.error(err);
-//     next(err);
-//   }
-// });
-
-// // :id 이 방식으로 해당 열의 id 값을 가져오고 sequalize 조건절에 삽입
-// router.delete("/delete/:id", async (req, res, next) => {
-//   try {
-//     const result = await User.destroy({ where: { id: req.params.id } });
-//     res.json({ success: result });
-//   } catch (err) {
-//     console.error(err);
-//     next(err);
-//   }
-// });
-
-// router.get("/search/:name", async (req, res, next) => {
-//   try {
-//     const result = await User.findAll({
-//       where: {
-//         [Op.or]: [
-//           { contents: req.params.name },
-//           { name: req.params.name },
-//           { writer: req.params.name },
-//         ],
-//       },
-//     });
-//     res.json(result);
-//   } catch (err) {
-//     console.error(err);
-//     next(err);
-//   }
-// });
 module.exports = router;
